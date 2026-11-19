@@ -73,7 +73,9 @@ export function createVocab(entries) {
       list.push(e);
       surface.set(e.modern[0], list);
     } else {
-      for (const key of new Set([e.modern, e.reading])) {
+      // 読みで引けるのは、項目の現代語が仮名だけのときに限る（射る が ひらがなの いる に当たらないように）
+      const keys = KANJI.test(e.modern) ? [e.modern] : [e.modern, e.reading];
+      for (const key of new Set(keys)) {
         const list = lemma.get(key) ?? [];
         list.push(e);
         lemma.set(key, list);

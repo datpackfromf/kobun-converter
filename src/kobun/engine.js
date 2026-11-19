@@ -87,6 +87,16 @@ function isHeadToken(t) {
   return !['助詞', '助動詞'].includes(t.pos);
 }
 
+/**
+ * 形容詞の項目が、現代語の語幹に し を付けただけの同じ語か（たのしい→たのし、さむい→さむし）。
+ * @param {VocabEntry} e
+ */
+function sameAdjective(e) {
+  if (!e.reading.endsWith('い')) return false;
+  const stem = e.reading.slice(0, -1);
+  return e.kobunReading === stem || e.kobunReading === stem + 'し';
+}
+
 /** 固定語の unit */
 function fixed(src, h, m, extra = {}) {
   return /** @type {Unit} */ ({ kind: 'fixed', src, head: false, h, m, need: 'auto', ...extra });
@@ -278,6 +288,12 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
         }
       }
 
+      // 解析の誤りらしい活用語（縮約形、前に用言のない非自立の動詞 きゃ＝く 等）は書き換えない
+      if ((t.pos === '動詞' || t.pos === '形容詞') && (/縮約/.test(t.cForm) || (t.pos1 === '非自立' && !prevConj() && !prevUnit()?.te))) {
+        push(fixed(t.surface, t.surface, t.surface, { flag: 'unknown', note: `「${t.surface}」は解析が確かでなく、そのまま残した` }), true);
+        continue;
+      }
+
       // 動詞・形容詞
       if (t.pos === '動詞' || t.pos === '形容詞') {
         // て＋いる → たり
@@ -311,6 +327,8 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
           continue;
         }
         let e = voc.byLemma(t.base, (x) => x.pos === (t.pos === '動詞' ? 'verb' : 'adjective'));
+        // 規則で作るのと同じ語の形容詞（楽しい→たのし）は、漢字を残すため規則に任せる
+        if (e && t.pos === '形容詞' && sameAdjective(e)) e = null;
         let w = e ? vocabWord(e) : null;
         if (!w) {
           e = null;
@@ -335,7 +353,7 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
           push(conj(t.surface, { cls: 'ず', stemH: '', stemM: '' }, { need: 'mizen', isAux: true, modernForm: mf }), false);
           continue;
         }
-        if (b === 'た') {
+        if (b === 'た' || t.cType === '特殊・タ') {
           if (t.cForm === '仮定形') push(fixed(t.surface, 'ば', 'ば', { need: 'mizen', particle: true }), false);
           else push(conj(t.surface, { cls: 'ラ変', stemH: 'た', stemM: 'た' }, { pending: 'ta', need: 'renyo', isAux: true, modernForm: mf }), false);
           continue;
@@ -418,6 +436,10 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
             continue;
           }
         }
+        if (t.surface === 'で' && t.pos1 === '格助詞') {
+          push(fixed(t.surface, 'にて', 'にて', { particle: true }), false);
+          continue;
+        }
         const p = PARTICLES[t.surface];
         if (p && (!p.pos1 || p.pos1 === t.pos1) && (!p.pos2 || p.pos2 === t.pos2)) {
           push(fixed(t.surface, p.h, p.h, { need: p.need, particle: true }), false);
@@ -470,6 +492,8 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
       const prev = units.slice(0, k).reverse().find((x) => x.kind !== 'drop');
       if (u.kind === 'fixed') {
         if (u.te && prev?.kind === 'conj' && prev.word.cls === 'ず') return 'して';
+        // 形容詞・ず の未然形「く」「ず」＋仮定の ば は清音の「は」（寒くは・行かずは）
+        if (u.need === 'mizen' && u.h === 'ば' && prev?.kind === 'conj' && ['ク', 'シク', 'ず'].includes(prev.word.cls)) return 'は';
         return hist ? u.h : u.m;
       }
       const n = nextOf(k);

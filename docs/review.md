@@ -3,15 +3,15 @@
 `node scripts/build-vocab.js` が `data/vocab/*.json` から自動で作る。手で直さない。
 確認したら、分野のファイルの `status` を `confirmed` にし、`basis` に根拠（古語辞典名・用例）を書いて、もう一度スクリプトを実行する。
 
-合計 561 語（確認済み 513、要確認 48）
+合計 559 語（確認済み 511、要確認 48）
 
 | 分野 | 語数 | 要確認 |
 |---|---|---|
-| adjective | 110 | 6 |
+| adjective | 109 | 6 |
 | adverb | 143 | 18 |
 | conjunction | 63 | 9 |
 | katakana | 50 | 11 |
-| noun | 114 | 3 |
+| noun | 113 | 3 |
 | verb | 81 | 1 |
 
 | 現代語 | 古語 | 読み | 分野 | 根拠 | 注意 |

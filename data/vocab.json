@@ -84,20 +84,6 @@
   "category": "adjective"
  },
  {
-  "modern": "美しい",
-  "reading": "うつくしい",
-  "match": "lemma",
-  "kobun": "うるはし",
-  "kobunModern": "うるわし",
-  "kobunReading": "うるはし",
-  "pos": "adjective",
-  "class": "シク",
-  "basis": "古語「うるはし」は整っていて美しい・端正だの意（源氏物語など）。古語「うつくし」は「かわいい」の意なので、現代の「美しい」には「うるはし」を当てる。",
-  "status": "confirmed",
-  "note": "古語「うるはし」はきちんとしている・仲が良いの意もある。",
-  "category": "adjective"
- },
- {
   "modern": "すごい",
   "reading": "すごい",
   "match": "lemma",
@@ -6171,20 +6157,6 @@
   "basis": "古語「ふみ（文）」＝手紙（源氏物語・伊勢物語に多用）。",
   "status": "confirmed",
   "note": "「ふみ」は書物・漢詩文・学問の意もある。",
-  "category": "noun"
- },
- {
-  "modern": "本",
-  "reading": "ほん",
-  "match": "surface",
-  "kobun": "書",
-  "kobunModern": "書",
-  "kobunReading": "ふみ",
-  "pos": "noun",
-  "class": null,
-  "basis": "古語「ふみ（書・文）」＝書物（「ひとり灯火のもとに文をひろげて」徒然草）。",
-  "status": "confirmed",
-  "note": "古語「本（ほん）」は手本・根本の意。",
   "category": "noun"
  },
  {

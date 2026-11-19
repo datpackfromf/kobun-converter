@@ -1,0 +1,610 @@
+[
+ {
+  "input": "よろしい",
+  "expected": "よろし",
+  "src": "spec"
+ },
+ {
+  "input": "と思う",
+  "expected": "と思ふ",
+  "src": "spec"
+ },
+ {
+  "input": "とても美しい花だ",
+  "expected": "いと美しき花なり",
+  "src": "spec"
+ },
+ {
+  "input": "明日は早く起きよう",
+  "expected": "明日はとく起きむ",
+  "src": "spec"
+ },
+ {
+  "input": "本当に面白い",
+  "expected": "まことにをかし",
+  "src": "spec"
+ },
+ {
+  "input": "すごくかわいい",
+  "expected": "いみじくうつくし",
+  "src": "spec"
+ },
+ {
+  "input": "行きたい",
+  "expected": "行きたし",
+  "src": "spec"
+ },
+ {
+  "input": "行かない",
+  "expected": "行かず",
+  "src": "spec"
+ },
+ {
+  "input": "行くだろう",
+  "expected": "行かむ",
+  "src": "spec"
+ },
+ {
+  "input": "静かな夜だった",
+  "expected": "静かなる夜なりけり",
+  "src": "spec"
+ },
+ {
+  "input": "寒いので家にいる",
+  "expected": "寒ければ家にをり",
+  "src": "spec"
+ },
+ {
+  "input": "見たけれど知らなかった",
+  "expected": "見たれど知らざりけり",
+  "src": "spec"
+ },
+ {
+  "input": "早く寝なさい",
+  "expected": "とく寝よ",
+  "src": "spec"
+ },
+ {
+  "input": "これは本です",
+  "expected": "これは本なり",
+  "src": "spec"
+ },
+ {
+  "input": "どうしよう",
+  "expected": "いかがせむ",
+  "src": "spec"
+ },
+ {
+  "input": "静かな夜だった",
+  "expected": "静かなる夜なりき",
+  "opts": {
+   "style": "diary"
+  },
+  "src": "option"
+ },
+ {
+  "input": "雨が降った",
+  "expected": "雨が降りき",
+  "opts": {
+   "style": "diary"
+  },
+  "src": "option"
+ },
+ {
+  "input": "行きます",
+  "expected": "行き侍り",
+  "opts": {
+   "polite": "haberi"
+  },
+  "src": "option"
+ },
+ {
+  "input": "行きました",
+  "expected": "行き侍りけり",
+  "opts": {
+   "polite": "haberi"
+  },
+  "src": "option"
+ },
+ {
+  "input": "これは本です",
+  "expected": "これは本に侍り",
+  "opts": {
+   "polite": "haberi"
+  },
+  "src": "option"
+ },
+ {
+  "input": "行きません",
+  "expected": "行き侍らず",
+  "opts": {
+   "polite": "haberi"
+  },
+  "src": "option"
+ },
+ {
+  "input": "と思う",
+  "expected": "と思う",
+  "opts": {
+   "historical": false
+  },
+  "src": "option"
+ },
+ {
+  "input": "本当に面白い",
+  "expected": "まことにおかし",
+  "opts": {
+   "historical": false
+  },
+  "src": "option"
+ },
+ {
+  "input": "寒いので家にいる",
+  "expected": "寒ければ家におり",
+  "opts": {
+   "historical": false
+  },
+  "src": "option"
+ },
+ {
+  "input": "言った",
+  "expected": "言いけり",
+  "opts": {
+   "historical": false
+  },
+  "src": "option"
+ },
+ {
+  "input": "言った",
+  "expected": "言ひけり",
+  "src": "option"
+ },
+ {
+  "input": "きゃべつを買った",
+  "expected": "きやべつを買ひけり",
+  "src": "option"
+ },
+ {
+  "input": "きゃべつを買った",
+  "expected": "きゃべつを買ひけり",
+  "opts": {
+   "smallToLarge": false
+  },
+  "src": "option"
+ },
+ {
+  "input": "今日は楽しかった",
+  "expected": "今日は楽しかりけり",
+  "opts": {
+   "historical": false
+  },
+  "src": "option"
+ },
+ {
+  "input": "花が咲いた",
+  "expected": "花が咲きけり",
+  "src": "rule"
+ },
+ {
+  "input": "花が咲いている",
+  "expected": "花が咲きたり",
+  "src": "rule"
+ },
+ {
+  "input": "花が咲いていた",
+  "expected": "花が咲きたりけり",
+  "src": "rule"
+ },
+ {
+  "input": "雨が降っている",
+  "expected": "雨が降りたり",
+  "src": "rule"
+ },
+ {
+  "input": "昨日見た夢",
+  "expected": "昨日見たる夢",
+  "src": "rule"
+ },
+ {
+  "input": "本を読んだ",
+  "expected": "本を読みけり",
+  "src": "rule"
+ },
+ {
+  "input": "本を読んで寝た",
+  "expected": "本を読みて寝けり",
+  "src": "rule"
+ },
+ {
+  "input": "手紙を書いた",
+  "expected": "文を書きけり",
+  "src": "rule"
+ },
+ {
+  "input": "手紙を書かなかった",
+  "expected": "文を書かざりけり",
+  "src": "rule"
+ },
+ {
+  "input": "行って帰る",
+  "expected": "行きて帰る",
+  "src": "rule"
+ },
+ {
+  "input": "月を見る",
+  "expected": "月を見る",
+  "src": "rule"
+ },
+ {
+  "input": "月を見た",
+  "expected": "月を見けり",
+  "src": "rule"
+ },
+ {
+  "input": "月を見ない",
+  "expected": "月を見ず",
+  "src": "rule"
+ },
+ {
+  "input": "朝早く起きる",
+  "expected": "あしたとく起く",
+  "src": "rule"
+ },
+ {
+  "input": "六時に起きた",
+  "expected": "六時に起きけり",
+  "src": "rule"
+ },
+ {
+  "input": "手紙を受ける",
+  "expected": "文を受く",
+  "src": "rule"
+ },
+ {
+  "input": "よく考える",
+  "expected": "よく考ふ",
+  "src": "rule"
+ },
+ {
+  "input": "よく考えた",
+  "expected": "よく考へけり",
+  "src": "rule"
+ },
+ {
+  "input": "名前を覚えた",
+  "expected": "名前を覚えけり",
+  "src": "vocab"
+ },
+ {
+  "input": "山が見える",
+  "expected": "山が見ゆ",
+  "src": "vocab"
+ },
+ {
+  "input": "友を信じる",
+  "expected": "友を信ず",
+  "src": "vocab"
+ },
+ {
+  "input": "勉強した",
+  "expected": "勉強しけり",
+  "src": "rule"
+ },
+ {
+  "input": "友が来た",
+  "expected": "友が来けり",
+  "src": "rule"
+ },
+ {
+  "input": "友が来る",
+  "expected": "友が来",
+  "src": "rule"
+ },
+ {
+  "input": "友が来ない",
+  "expected": "友が来ず",
+  "src": "rule"
+ },
+ {
+  "input": "力がない",
+  "expected": "力がなし",
+  "src": "rule"
+ },
+ {
+  "input": "ここに花がある",
+  "expected": "ここに花があり",
+  "src": "rule"
+ },
+ {
+  "input": "犬が死んだ",
+  "expected": "犬が死にけり",
+  "src": "rule"
+ },
+ {
+  "input": "寒い",
+  "expected": "寒し",
+  "src": "rule"
+ },
+ {
+  "input": "寒かった",
+  "expected": "寒かりけり",
+  "src": "rule"
+ },
+ {
+  "input": "寒くない",
+  "expected": "寒からず",
+  "src": "rule"
+ },
+ {
+  "input": "寒ければ帰る",
+  "expected": "寒くは帰る",
+  "src": "rule"
+ },
+ {
+  "input": "美しい",
+  "expected": "美し",
+  "src": "rule"
+ },
+ {
+  "input": "美しくない",
+  "expected": "美しからず",
+  "src": "rule"
+ },
+ {
+  "input": "美しいなあ",
+  "expected": "美しきかな",
+  "src": "rule"
+ },
+ {
+  "input": "楽しかった",
+  "expected": "楽しかりけり",
+  "src": "rule"
+ },
+ {
+  "input": "高い山",
+  "expected": "高き山",
+  "src": "rule"
+ },
+ {
+  "input": "静かだ",
+  "expected": "静かなり",
+  "src": "rule"
+ },
+ {
+  "input": "静かに歩く",
+  "expected": "静かに歩む",
+  "src": "vocab"
+ },
+ {
+  "input": "きれいな花",
+  "expected": "きよらなる花",
+  "src": "rule"
+ },
+ {
+  "input": "きれいだね",
+  "expected": "きよらなり",
+  "src": "rule"
+ },
+ {
+  "input": "雨だった",
+  "expected": "雨なりけり",
+  "src": "rule"
+ },
+ {
+  "input": "雨なので行かない",
+  "expected": "雨なれば行かず",
+  "src": "rule"
+ },
+ {
+  "input": "雨だけど行く",
+  "expected": "雨なれど行く",
+  "src": "rule"
+ },
+ {
+  "input": "これは本である",
+  "expected": "これは本なり",
+  "src": "rule"
+ },
+ {
+  "input": "行こう",
+  "expected": "行かむ",
+  "src": "rule"
+ },
+ {
+  "input": "一緒に行こう",
+  "expected": "もろともに行かむ",
+  "src": "vocab"
+ },
+ {
+  "input": "見よう",
+  "expected": "見む",
+  "src": "rule"
+ },
+ {
+  "input": "雨が降るだろう",
+  "expected": "雨が降らむ",
+  "src": "rule"
+ },
+ {
+  "input": "明日は雨だろう",
+  "expected": "明日は雨ならむ",
+  "src": "rule"
+ },
+ {
+  "input": "二度と行くまい",
+  "expected": "二度と行かじ",
+  "src": "rule"
+ },
+ {
+  "input": "花を見たい",
+  "expected": "花を見たし",
+  "src": "rule"
+ },
+ {
+  "input": "花を見たかった",
+  "expected": "花を見たかりけり",
+  "src": "rule"
+ },
+ {
+  "input": "雨が降るらしい",
+  "expected": "雨が降るらし",
+  "src": "rule"
+ },
+ {
+  "input": "夢のようだ",
+  "expected": "夢のごとし",
+  "src": "rule"
+ },
+ {
+  "input": "人に笑われる",
+  "expected": "人に笑はる",
+  "src": "rule"
+ },
+ {
+  "input": "人に見られる",
+  "expected": "人に見らる",
+  "src": "rule"
+ },
+ {
+  "input": "子に読ませる",
+  "expected": "子に読ます",
+  "src": "rule"
+ },
+ {
+  "input": "子に見させる",
+  "expected": "子に見さす",
+  "src": "rule"
+ },
+ {
+  "input": "雨が降ったら帰る",
+  "expected": "雨が降らば帰る",
+  "src": "rule"
+ },
+ {
+  "input": "雨が降れば帰る",
+  "expected": "雨が降らば帰る",
+  "src": "rule"
+ },
+ {
+  "input": "雨が降っても行く",
+  "expected": "雨が降るとも行く",
+  "src": "rule"
+ },
+ {
+  "input": "寒くても行く",
+  "expected": "寒くとも行く",
+  "src": "rule"
+ },
+ {
+  "input": "花だけ見る",
+  "expected": "花のみ見る",
+  "src": "rule"
+ },
+ {
+  "input": "疲れたので寝る",
+  "expected": "疲れたれば寝",
+  "src": "rule"
+ },
+ {
+  "input": "行ったけれど会えなかった",
+  "expected": "行きたれど逢はざりけり",
+  "src": "vocab",
+  "cause": "rule",
+  "why": "可能動詞（会える＝会ふ＋可能）の規則がない。一段動詞として 会え のまま活用した"
+ },
+ {
+  "input": "起きろ",
+  "expected": "起きよ",
+  "src": "rule"
+ },
+ {
+  "input": "早く来て",
+  "expected": "とく来よ",
+  "src": "rule"
+ },
+ {
+  "input": "ここで待ってください",
+  "expected": "ここにて待て",
+  "src": "rule"
+ },
+ {
+  "input": "行きましょう",
+  "expected": "行かむ",
+  "src": "rule"
+ },
+ {
+  "input": "雨が降った。家にいた。",
+  "expected": "雨が降りけり。家にをりけり。",
+  "src": "rule"
+ },
+ {
+  "input": "行くよ",
+  "expected": "行く",
+  "src": "rule"
+ },
+ {
+  "input": "だから行く",
+  "expected": "されば行く",
+  "src": "vocab"
+ },
+ {
+  "input": "しかし雨が降った",
+  "expected": "されど雨が降りけり",
+  "src": "vocab"
+ },
+ {
+  "input": "とても悲しい",
+  "expected": "いと悲し",
+  "src": "vocab"
+ },
+ {
+  "input": "少し寒い",
+  "expected": "いささか寒し",
+  "src": "vocab"
+ },
+ {
+  "input": "不思議な話だ",
+  "expected": "あやしき話なり",
+  "src": "vocab"
+ },
+ {
+  "input": "残念だ",
+  "expected": "口惜し",
+  "src": "vocab"
+ },
+ {
+  "input": "本当に残念だった",
+  "expected": "まことに口惜しかりけり",
+  "src": "vocab"
+ },
+ {
+  "input": "かわいい子供",
+  "expected": "うつくしき童",
+  "src": "vocab"
+ },
+ {
+  "input": "夜明けの空",
+  "expected": "あけぼのの空",
+  "src": "vocab"
+ },
+ {
+  "input": "昨日は雨だった",
+  "expected": "昨日は雨なりけり",
+  "src": "vocab"
+ },
+ {
+  "input": "ケーキを食べた",
+  "expected": "菓子を食ひけり",
+  "src": "vocab"
+ },
+ {
+  "input": "花だ🌸",
+  "expected": "花なり🌸",
+  "src": "edge"
+ },
+ {
+  "input": "",
+  "expected": "",
+  "src": "edge"
+ }
+]

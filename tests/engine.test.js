@@ -113,3 +113,30 @@ test('文節: segments の source を連結すると入力になる', async () =
   assert.equal(r.segments.map((s) => s.source).join(''), text);
   assert.equal(r.segments.map((s) => s.text).join(''), r.output);
 });
+
+test('撥音便の後の だ（特殊・タ）は た と同じ', async () => {
+  assert.equal(await out('本を読んだ'), '本を読みけり');
+  assert.equal(await out('犬が死んだ'), '犬が死にけり');
+});
+
+test('読みが同じでも漢字の項目（射る）は ひらがなの いる に当てない', async () => {
+  assert.equal(await out('家にいる'), '家にをり');
+});
+
+test('規則と同じ語の項目（楽しい→たのし）は漢字を残す', async () => {
+  assert.equal(await out('楽しかった'), '楽しかりけり');
+});
+
+test('形容詞の仮定 寒けれ＋ば → 寒くは', async () => {
+  assert.equal(await out('寒ければ帰る'), '寒くは帰る');
+});
+
+test('格助詞 で → にて', async () => {
+  assert.equal(await out('ここで待ってください'), 'ここにて待て');
+});
+
+test('解析の誤り（きゃ＝く の仮定縮約）は書き換えず点線にする', async () => {
+  const r = await k('きゃべつを買った');
+  assert.equal(r.output, 'きやべつを買ひけり');
+  assert.equal(r.segments[0].flag, 'unknown');
+});
