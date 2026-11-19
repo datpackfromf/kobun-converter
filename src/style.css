@@ -93,6 +93,7 @@ input:focus-visible {
   background: var(--sheet);
   border: 1px solid var(--line);
   border-radius: 6px;
+  width: 100%; /* 縦書きの箱は中身の幅に縮むので、列の幅いっぱいにする */
   height: 17rem;
   overflow-x: auto;
   overflow-y: hidden;
