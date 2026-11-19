@@ -676,5 +676,75 @@
   "input": "川で泳いだ",
   "expected": "川にて泳ぎけり",
   "src": "rule"
+ },
+ {
+  "input": "泣くな",
+  "expected": "泣くな",
+  "src": "rule"
+ },
+ {
+  "input": "忘れるなよ",
+  "expected": "忘るな",
+  "src": "rule"
+ },
+ {
+  "input": "山の高さ",
+  "expected": "山の高さ",
+  "src": "rule"
+ },
+ {
+  "input": "寒さを感じる",
+  "expected": "寒さを感ず",
+  "src": "vocab"
+ },
+ {
+  "input": "宿題を忘れてしまった",
+  "expected": "宿題を忘れにけり",
+  "src": "rule"
+ },
+ {
+  "input": "本を読んでいない",
+  "expected": "本を読まず",
+  "src": "rule"
+ },
+ {
+  "input": "雨は降っていませんでした",
+  "expected": "雨は降らざりけり",
+  "src": "rule"
+ },
+ {
+  "input": "私は行った",
+  "expected": "われは行きけり",
+  "src": "vocab"
+ },
+ {
+  "input": "月がきれいです",
+  "expected": "月がきよらなり",
+  "src": "vocab"
+ },
+ {
+  "input": "空が青くて美しい",
+  "expected": "空が青くて美し",
+  "src": "rule"
+ },
+ {
+  "input": "雨が降るかもしれない",
+  "expected": "雨が降らむ",
+  "src": "rule",
+  "cause": "rule",
+  "why": "「かもしれない」に当たる古文の言い方（〜にやあらむ 等）を選ぶ規則がない。しれ＋ず と語ごとに直した"
+ },
+ {
+  "input": "桜が散っていく",
+  "expected": "桜が散りゆく",
+  "src": "rule"
+ },
+ {
+  "input": "行きませんでした",
+  "expected": "行き侍らざりけり",
+  "opts": {
+   "polite": "haberi"
+  },
+  "src": "option"
  }
 ]

@@ -193,5 +193,31 @@
   "basis": "test",
   "status": "confirmed",
   "note": ""
+ },
+ {
+  "modern": "きれい",
+  "reading": "きれい",
+  "match": "lemma",
+  "kobun": "きよらなり",
+  "kobunModern": "きよらなり",
+  "kobunReading": "きよらなり",
+  "pos": "adjectival_noun",
+  "class": "ナリ",
+  "basis": "test",
+  "status": "confirmed",
+  "note": ""
+ },
+ {
+  "modern": "青い",
+  "reading": "あおい",
+  "match": "lemma",
+  "kobun": "あをし",
+  "kobunModern": "あおし",
+  "kobunReading": "あをし",
+  "pos": "adjective",
+  "class": "ク",
+  "basis": "test",
+  "status": "confirmed",
+  "note": ""
  }
 ]

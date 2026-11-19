@@ -80,6 +80,7 @@ function formOf(cForm) {
   if (/^命令/.test(cForm)) return 'meirei';
   if (cForm === '体言接続') return 'rentai';
   if (cForm === '基本形') return 'base';
+  if (cForm === 'ガル接続') return 'garu';
   return null;
 }
 
@@ -97,7 +98,19 @@ function isHeadToken(t) {
 function sameAdjective(e) {
   if (!e.reading.endsWith('い')) return false;
   const stem = e.reading.slice(0, -1);
-  return e.kobunReading === stem || e.kobunReading === stem + 'し';
+  const k = modernizeKana(e.kobunReading);
+  return k === stem || k === stem + 'し';
+}
+
+/**
+ * 歴史的仮名を現代の音の仮名に寄せる（比べるためだけの近似: あをし→あおし、くちをし→くちおし）。
+ * @param {string} s
+ */
+function modernizeKana(s) {
+  const HA = { は: 'わ', ひ: 'い', ふ: 'う', へ: 'え', ほ: 'お' };
+  return [...s.replace(/を/g, 'お').replace(/ゐ/g, 'い').replace(/ゑ/g, 'え')]
+    .map((c, i) => (i > 0 && HA[c] ? HA[c] : c))
+    .join('');
 }
 
 /** 固定語の unit */
@@ -246,7 +259,7 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
     };
 
     for (let i = 0; i < tokens.length; i++) {
-      const t = tokens[i];
+      let t = tokens[i];
       const next = tokens[i + 1];
       const h = hist[i].text;
       const head = isHeadToken(t);
@@ -283,7 +296,7 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
       }
 
       // 形容動詞語幹 ＋ だ／な／に／で（ある）
-      if (t.pos === '名詞' && t.pos1 === '形容動詞語幹' && next && ((next.pos === '助動詞' && next.base === 'だ') || (next.pos === '助詞' && next.surface === 'に' && next.pos1 === '副詞化'))) {
+      if (t.pos === '名詞' && t.pos1 === '形容動詞語幹' && next && ((next.pos === '助動詞' && (next.base === 'だ' || next.base === 'です')) || (next.pos === '助詞' && next.surface === 'に' && next.pos1 === '副詞化'))) {
         const e = voc.byLemma(t.surface, (x) => x.pos === 'adjectival_noun');
         const w = e ? vocabWord(e) : { cls: 'ナリ', stemH: h, stemM: t.surface };
         if (w) {
@@ -296,7 +309,13 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
             skip = 2;
           }
           const extra = e ? { note: vocabNote(e), ...(e.status === 'review' ? { flag: 'review' } : {}) } : {};
-          push(conj(src, w, { modernForm: mf, ...extra }), true);
+          if (next.base === 'です' && opts.polite === 'haberi') {
+            // きよらに｜侍り
+            push(conj(t.surface, w, { modernForm: 'renyo', ...extra }), true);
+            push(conj(next.surface, { cls: 'ラ変', stemH: '侍', stemM: '侍' }, { need: 'renyo', modernForm: mf }), false);
+          } else {
+            push(conj(src, w, { modernForm: mf, ...extra }), true);
+          }
           i += skip;
           continue;
         }
@@ -306,7 +325,7 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
       if (HIRAGANA.test(t.surface) && /^[ぁ-ゟー]+$/.test(t.surface) && ['動詞', '形容詞', '助動詞'].includes(t.pos)) {
         const pt = tokens[i - 1];
         const afterForeign = pt && (pt.pos === 'UNK' || pt.pos === '' || (KATAKANA_ONLY.test(pt.surface) && !(pt.pos1 === 'サ変接続' && t.cType.startsWith('サ変'))));
-        if (afterForeign || (prevUnit()?.foreign && t.pos !== '動詞' || prevUnit()?.foreign && t.pos1 !== '自立')) {
+        if (afterForeign || (prevUnit()?.foreign && (t.pos !== '動詞' || t.pos1 !== '自立'))) {
           const u = push(fixed(t.surface, t.surface, t.surface, { flag: 'unknown', note: `「${t.surface}」は前の語が辞書にないため、そのまま残した` }), false);
           u.foreign = true;
           continue;
@@ -333,7 +352,26 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
           if (p && p.te) {
             // 「て」の unit を「たり」に置き換える（元の語は て＋いる）
             units.splice(units.indexOf(p), 1);
-            push(conj(p.src + t.surface, { cls: 'ラ変', stemH: 'た', stemM: 'た' }, { need: 'renyo', isAux: true, modernForm: formOf(t.cForm) }), false);
+            push(conj(p.src + t.surface, { cls: 'ラ変', stemH: 'た', stemM: 'た' }, { need: 'renyo', isAux: true, teiru: true, modernForm: formOf(t.cForm) }), false);
+            continue;
+          }
+        }
+        // て＋いく → 連用形＋ゆく（散りゆく）
+        if (t.pos1 === '非自立' && (t.base === 'いく' || t.base === '行く')) {
+          const p = prevUnit();
+          if (p && p.te) {
+            units.splice(units.indexOf(p), 1);
+            const stem = 'ゆ';
+            push(conj(p.src + t.surface, { cls: '四段', stemH: stem, stemM: stem, row: 'か' }, { need: 'renyo', modernForm: formOf(t.cForm) }), false);
+            continue;
+          }
+        }
+        // て＋しまう → 連用形＋ぬ（完了。忘れにけり）
+        if (t.pos1 === '非自立' && t.base === 'しまう') {
+          const p = prevUnit();
+          if (p && p.te) {
+            units.splice(units.indexOf(p), 1);
+            push(conj(p.src + t.surface, { cls: 'ナ変', stemH: '', stemM: '' }, { need: 'renyo', isAux: true, modernForm: formOf(t.cForm) }), false);
             continue;
           }
         }
@@ -356,6 +394,10 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
           const stem = strong ? '' : passive ? 'ら' : 'さ';
           push(conj(t.surface, { cls: '下二段', stemH: stem, stemM: stem, row: passive ? 'ら' : 'さ' }, { need: 'mizen', isAux: true, modernForm: formOf(t.cForm) }), false);
           continue;
+        }
+        if (t.base === '行う' && t.surface === '行っ') {
+          // 「行った」は解析器が 行う と読むことがあるが、日常の文では 行く が多いので 行く とする
+          t = { ...t, base: '行く', cType: '五段・カ行促音便' };
         }
         let e = voc.byLemma(t.base, (x) => x.pos === (t.pos === '動詞' ? 'verb' : 'adjective'));
         // 規則で作るのと同じ語の形容詞（楽しい→たのし）は、漢字を残すため規則に任せる
@@ -381,6 +423,12 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
         const b = t.base;
         const mf = formOf(t.cForm);
         if (b === 'ない' || b === 'ぬ' || b === 'ん') {
+          // ている＋ない（読んでいない）は たり を外して 未然＋ず（読まず）
+          const pc = prevConj();
+          if (pc?.teiru) {
+            pc.kind = 'drop';
+            pc.word = undefined;
+          }
           const ara = prevConj() ? '' : 'あら'; // 学生には｜あらず
           if (ara) deWaToNiWa();
           push(conj(t.surface, { cls: 'ず', stemH: ara, stemM: ara }, { need: 'mizen', isAux: true, modernForm: mf }), false);
@@ -408,7 +456,8 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
           continue;
         }
         if (b === 'ます') {
-          if (opts.polite === 'haberi') {
+          const c0 = prevConj();
+          if (opts.polite === 'haberi' && !(c0?.isAux) && c0?.word.stemH !== '侍') {
             push(conj(t.surface, { cls: 'ラ変', stemH: '侍', stemM: '侍' }, { need: 'renyo', modernForm: mf }), false);
           } else {
             const c = prevConj();
@@ -420,7 +469,9 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
         }
         if (b === 'です' && prevConj() && !/^でしょ$/.test(t.surface)) {
           // 暑いです・行きませんでした: 丁寧の です は ます と同じに落とす（侍り なら 連用形＋侍り）
-          if (opts.polite === 'haberi') {
+          const c1 = prevConj();
+          // 侍り・助動詞（ず・た 等）の後の です は落とす（侍らざりけり、侍らず侍り としない）
+          if (opts.polite === 'haberi' && !c1.isAux && c1.word.stemH !== '侍') {
             push(conj(t.surface, { cls: 'ラ変', stemH: '侍', stemM: '侍' }, { need: 'renyo', modernForm: mf }), false);
           } else {
             const c = prevConj();
@@ -466,6 +517,16 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
 
       // 助詞
       if (t.pos === '助詞') {
+        // 禁止の な（動詞の終止形＋な）は文語でも同じ形で残す
+        if (t.pos1 === '終助詞' && t.surface === 'な' && tokens[i - 1]?.pos === '動詞' && tokens[i - 1]?.cForm === '基本形') {
+          push(fixed(t.surface, 'な', 'な', { need: 'shushi', particle: true }), false);
+          continue;
+        }
+        // 文末の問いの の は古文にない言い方なので、点線で残す
+        if (t.pos1 === '終助詞' && t.surface === 'の') {
+          push(fixed(t.surface, 'の', 'の', { particle: true, flag: 'unknown', note: '文末の「の」（問い・説明）は古文の言い方に直す規則がなく、そのまま残した' }), false);
+          continue;
+        }
         if (t.pos1 === '終助詞' && DROP_FINAL.has(t.surface)) {
           push({ kind: 'drop', src: t.surface, head: false }, false);
           continue;
@@ -536,7 +597,7 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
       const p = units.slice(0, k).reverse().find((x) => x.kind !== 'drop');
       // 文末（閉じかぎの前を含む）は けり／き。文中でも、完了の たり が付けない語（形容詞・ず・なり・たり）の後は けり／き
       const final = !n || n.kind === 'end' || (n.kind === 'fixed' && /^[」』）)]/.test(n.src));
-      const afterVerb = p?.kind === 'conj' && VERB_CLASSES.has(p.word.cls) && !(p.word.cls === 'ラ変' && p.word.stemH === 'た');
+      const afterVerb = p?.kind === 'conj' && VERB_CLASSES.has(p.word.cls) && !(p.isAux && p.word.cls !== '下二段');
       if (final || !afterVerb) u.word = { cls: opts.style === 'diary' ? 'き' : 'けり', stemH: '', stemM: '' };
     });
     return units.map((u, k) => {
@@ -549,6 +610,7 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
         if (u.need === 'mizen' && u.h === 'ば' && prev?.kind === 'conj' && ['ク', 'シク', 'ず'].includes(prev.word.cls)) return 'は';
         return hist ? u.h : u.m;
       }
+      if (u.modernForm === 'garu' && !u.force) return hist ? u.word.stemH : u.word.stemM; // 高さ・美しさ
       const n = nextOf(k);
       /** @type {Form} */
       let form;

@@ -7,6 +7,7 @@
   --accent: #6B4A79;
   --accent-ink: #FFFFFF;
   --flag: #A8711F;
+  --over: #B3261E;
   --mincho: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", "Noto Serif CJK JP", serif;
   --gothic: "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", "Noto Sans CJK JP", system-ui, sans-serif;
   color-scheme: light dark;
@@ -22,6 +23,7 @@
     --accent: #B79BC6;
     --accent-ink: #1B1E22;
     --flag: #D9A75A;
+    --over: #FF8A80;
   }
 }
 
@@ -115,6 +117,9 @@ input:focus-visible {
 .status { color: var(--muted); font-size: 1.05rem; }
 
 .flag {
+  display: inline;
+  min-height: 0;
+  border-radius: 0;
   font: inherit;
   color: inherit;
   background: none;
@@ -150,7 +155,7 @@ input:focus-visible {
 }
 
 .count { margin-right: auto; color: var(--muted); font-variant-numeric: tabular-nums; font-size: 0.9rem; }
-.count.over { color: #B3261E; font-weight: 600; }
+.count.over { color: var(--over); font-weight: 600; }
 
 button,
 .button {

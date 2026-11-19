@@ -15,6 +15,8 @@ const pass = cases.length - fails.length;
 const rate = ((pass / cases.length) * 100).toFixed(1);
 const byCause = {};
 for (const f of fails) byCause[f.cause ?? 'unclassified'] = (byCause[f.cause ?? 'unclassified'] ?? 0) + 1;
+/** Markdown の表を壊さないよう | と改行を置き換える */
+const esc = (s) => String(s ?? '').replace(/\|/g, '｜').replace(/\n/g, '⏎');
 const lines = [
   '# 不合格の例',
   '',
@@ -28,7 +30,7 @@ const lines = [
   '',
   '| 入力 | オプション | 期待値 | 出力 | 原因 | 説明 |',
   '|---|---|---|---|---|---|',
-  ...fails.map((f) => `| ${f.input} | ${f.opts ? JSON.stringify(f.opts) : ''} | ${f.expected} | ${f.got} | ${CAUSE[f.cause] ?? '未分類'} | ${f.why ?? ''} |`),
+  ...fails.map((f) => `| ${esc(f.input)} | ${f.opts ? esc(JSON.stringify(f.opts)) : ''} | ${esc(f.expected)} | ${esc(f.got)} | ${CAUSE[f.cause] ?? '未分類'} | ${esc(f.why)} |`),
   '',
 ];
 writeFileSync(new URL('../docs/failures.md', import.meta.url), lines.join('\n'));

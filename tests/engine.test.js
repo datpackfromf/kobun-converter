@@ -96,7 +96,7 @@ test('ている → たり、連体修飾の た → たる', async () => {
 });
 
 test('終助詞は落とし、なあ は かな', async () => {
-  assert.equal(await out('きれいだね'), 'きれいなり');
+  assert.equal(await out('きれいだね'), 'きよらなり');
   assert.equal(await out('美しいなあ'), '美しきかな');
 });
 
@@ -181,4 +181,51 @@ test('レビュー#10: 閉じかぎの前の た は文末として けり', asy
 
 test('レビュー#13: じ の上二段はダ行（閉づ）', async () => {
   assert.equal(await out('戸を閉じる'), '戸を閉づ');
+});
+
+test('レビュー2-#1: 禁止の な は残す（終止形＋な）', async () => {
+  assert.equal(await out('泣くな'), '泣くな');
+  assert.equal(await out('忘れるなよ'), '忘るな');
+  assert.equal(await out('「行くな」と言った'), '「行くな」と言ひけり');
+});
+
+test('レビュー2-#2: 形容詞のガル接続は語幹だけ（高さ・美しさ）', async () => {
+  assert.equal(await out('山の高さ'), '山の高さ');
+  assert.equal(await out('美しさを知る'), '美しさを知る');
+});
+
+test('レビュー2-#3: 侍り は二重にしない', async () => {
+  assert.equal(await out('行きませんでした', { polite: 'haberi' }), '行き侍らざりけり');
+  assert.equal(await out('行かなかったです', { polite: 'haberi' }), '行かざりけり');
+});
+
+test('レビュー2-#4: ている＋ない は 未然＋ず', async () => {
+  assert.equal(await out('本を読んでいない'), '本を読まず');
+  assert.equal(await out('雨は降っていませんでした'), '雨は降らざりけり');
+});
+
+test('レビュー2-#5: てしまう → 連用＋ぬ', async () => {
+  assert.equal(await out('宿題を忘れてしまった'), '宿題を忘れにけり');
+});
+
+test('レビュー2-#6: 行っ（行う）は 行く として扱う', async () => {
+  assert.equal(await out('私は行った'), '私は行きけり');
+});
+
+test('レビュー2-#7: 形容動詞＋です も語彙を引く', async () => {
+  assert.equal(await out('月がきれいです'), '月がきよらなり');
+  assert.equal(await out('月がきれいです', { polite: 'haberi' }), '月がきよらに侍り');
+});
+
+test('レビュー2: 文末の の（問い）は点線で残す', async () => {
+  const r = await k('どこへ行くの？');
+  assert.ok(r.segments.some((s) => s.flag === 'unknown' && s.source.includes('の')));
+});
+
+test('規則と同じ語の項目は、歴史的仮名の違いだけなら漢字を残す（青い→あをし）', async () => {
+  assert.equal(await out('空が青い'), '空が青し');
+});
+
+test('ていく → 連用形＋ゆく', async () => {
+  assert.equal(await out('桜が散っていく'), '桜が散りゆく');
 });

@@ -71,9 +71,12 @@ function showMessage(text) {
   output.hidden = true;
 }
 
-function closeNote() {
+function closeNote(returnFocus = false) {
   note.hidden = true;
-  if (openFlag) openFlag.setAttribute('aria-expanded', 'false');
+  if (openFlag) {
+    openFlag.setAttribute('aria-expanded', 'false');
+    if (returnFocus) openFlag.focus();
+  }
   openFlag = null;
 }
 
@@ -102,7 +105,9 @@ function renderResult(r) {
     btn.textContent = seg.text;
     btn.setAttribute('aria-expanded', 'false');
     btn.setAttribute('aria-controls', 'note');
-    btn.title = seg.flag === 'review' ? '辞書で要確認の語' : '確かめきれなかった所';
+    const kind = seg.flag === 'review' ? '辞書で要確認の語' : '確かめきれなかった所';
+    btn.title = kind;
+    btn.setAttribute('aria-label', `${seg.text}（${kind}。触ると元の語と根拠を表示）`);
     btn.addEventListener('click', () => toggleNote(btn, seg.note ?? `元の語「${seg.source}」`));
     frag.append(btn);
   }
@@ -115,7 +120,9 @@ function finish(out) {
   result = out;
   const n = countX(out);
   count.textContent = `${n} / ${X_LIMIT}${n > X_LIMIT ? '（超過）' : ''}`;
-  count.classList.toggle('over', n > X_LIMIT);
+  const over = n > X_LIMIT;
+  if (over !== count.classList.contains('over')) copyLive.textContent = over ? 'Xの文字数の上限を超えました' : '';
+  count.classList.toggle('over', over);
   copyBtn.disabled = out === '';
   if (out === '') {
     post.removeAttribute('href');
@@ -200,7 +207,7 @@ document.querySelectorAll('.options input').forEach((el) =>
   }),
 );
 copyBtn.addEventListener('click', copy);
-$('note-close').addEventListener('click', closeNote);
+$('note-close').addEventListener('click', () => closeNote(true));
 finish('');
 
 createAnalyzer(wasmUrl)
