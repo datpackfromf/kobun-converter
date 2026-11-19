@@ -48,11 +48,12 @@ const END_MARK = /^[。．.！!？?]+$|\n/;
 const HIRAGANA = /[ぁ-ゟ]/;
 const KANJI = /[㐀-鿿豈-﫿々]/;
 const KATAKANA_CHAR = /[ァ-ヺー]/;
+const KATAKANA_ONLY = /^[ァ-ヺー]+$/;
 
 /** 五段の終止形の最後の仮名 → 行（う は歴史的仮名でハ行） */
 const GODAN_ROW = { う: 'は', く: 'か', ぐ: 'が', す: 'さ', つ: 'た', ぬ: 'な', ぶ: 'ば', む: 'ま', る: 'ら' };
 /** い段・え段の仮名 → 行 */
-const I_ROW = { き: 'か', ぎ: 'が', し: 'さ', じ: 'ざ', ち: 'た', ぢ: 'だ', に: 'な', ひ: 'は', び: 'ば', み: 'ま', い: 'や', ゐ: 'わ', り: 'ら' };
+const I_ROW = { き: 'か', ぎ: 'が', し: 'さ', じ: 'だ', ち: 'た', ぢ: 'だ', に: 'な', ひ: 'は', び: 'ば', み: 'ま', い: 'や', ゐ: 'わ', り: 'ら' };
 const E_ROW = { け: 'か', げ: 'が', せ: 'さ', ぜ: 'ざ', て: 'た', で: 'だ', ね: 'な', へ: 'は', べ: 'ば', め: 'ま', え: 'や', ゑ: 'わ', れ: 'ら' };
 const I_KATA = 'キギシジチヂニヒビミイリピ';
 const E_KATA = 'ケゲセゼテデネヘベメエレペ';
@@ -66,6 +67,8 @@ const PARTICLES = {
   だけ: { h: 'のみ', need: 'rentai' }, なあ: { h: 'かな', need: 'rentai' }, なぁ: { h: 'かな', need: 'rentai' },
   と: { h: 'と', need: 'shushi', pos2: '引用' },
 };
+/** 完了の たり が付く動詞型の活用 */
+const VERB_CLASSES = new Set(['四段', '上一段', '上二段', '下二段', '下一段', 'カ変', 'サ変', 'ナ変', 'ラ変']);
 /** 落とす終助詞 */
 const DROP_FINAL = new Set(['ね', 'よ', 'な', 'わ', 'さ', 'ねえ', 'よね', 'ぜ', 'ってば']);
 
@@ -143,8 +146,9 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
     const row = iRow ?? eRow;
     if (!row) return null;
     if (iRow && n === 1) return { cls: '上一段', stemH, stemM }; // みる・きる・にる
-    let rowM = row;
-    if (lastM !== lastH) rowM = { は: 'わ', だ: 'ざ', わ: 'わ' }[row] ?? row;
+    // 現代仮名ではダ行の ぢ・づ を じ・ず と書き、ハ行の語中は ワ行の音で書く
+    let rowM = row === 'だ' ? 'ざ' : row;
+    if (lastM !== lastH && row === 'は') rowM = 'わ';
     return { cls: iRow ? '上二段' : '下二段', stemH: stemH.slice(0, -1), stemM: stemM.slice(0, -1), row, rowM };
   }
 
@@ -225,6 +229,16 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
       const p = prevUnit();
       return !p || p.kind === 'end' || p.src === '、' || p.src === '，';
     };
+    /** 直前が「で（格助詞・断定）＋は／も」なら で を に にして true（学生にはあらず・静かにはあらず） */
+    const deWaToNiWa = () => {
+      const [pa, pb] = units.filter((x) => x.kind !== 'drop').slice(-2).reverse();
+      if (!pa?.particle || !/^[はも]$/.test(pa.src) || !pb) return false;
+      if (pb.kind === 'fixed' && pb.src === 'で') {
+        pb.h = pb.m = 'に';
+        return true;
+      }
+      return pb.kind === 'conj' && pb.word.cls === 'ナリ' && /で$/.test(pb.src);
+    };
     const push = (u, head) => {
       u.head = head;
       units.push(u);
@@ -288,8 +302,25 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
         }
       }
 
+      // 片仮名語・未知語（ヤバ・ググ）に続く ひらがなの活用語・助動詞と、その後の助動詞は書き換えない
+      if (HIRAGANA.test(t.surface) && /^[ぁ-ゟー]+$/.test(t.surface) && ['動詞', '形容詞', '助動詞'].includes(t.pos)) {
+        const pt = tokens[i - 1];
+        const afterForeign = pt && (pt.pos === 'UNK' || pt.pos === '' || (KATAKANA_ONLY.test(pt.surface) && !(pt.pos1 === 'サ変接続' && t.cType.startsWith('サ変'))));
+        if (afterForeign || (prevUnit()?.foreign && t.pos !== '動詞' || prevUnit()?.foreign && t.pos1 !== '自立')) {
+          const u = push(fixed(t.surface, t.surface, t.surface, { flag: 'unknown', note: `「${t.surface}」は前の語が辞書にないため、そのまま残した` }), false);
+          u.foreign = true;
+          continue;
+        }
+      }
+
+      // では／でも＋ない（形容詞）→ にはあらず
+      if (t.pos === '形容詞' && t.base === 'ない' && deWaToNiWa()) {
+        push(conj(t.surface, { cls: 'ず', stemH: 'あら', stemM: 'あら' }, { need: 'mizen', isAux: true, modernForm: formOf(t.cForm) }), false);
+        continue;
+      }
+
       // 解析の誤りらしい活用語（縮約形、前に用言のない非自立の動詞 きゃ＝く 等）は書き換えない
-      if ((t.pos === '動詞' || t.pos === '形容詞') && (/縮約/.test(t.cForm) || (t.pos1 === '非自立' && !prevConj() && !prevUnit()?.te))) {
+      if ((t.pos === '動詞' || t.pos === '形容詞') && /縮約/.test(t.cForm)) {
         push(fixed(t.surface, t.surface, t.surface, { flag: 'unknown', note: `「${t.surface}」は解析が確かでなく、そのまま残した` }), true);
         continue;
       }
@@ -350,7 +381,9 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
         const b = t.base;
         const mf = formOf(t.cForm);
         if (b === 'ない' || b === 'ぬ' || b === 'ん') {
-          push(conj(t.surface, { cls: 'ず', stemH: '', stemM: '' }, { need: 'mizen', isAux: true, modernForm: mf }), false);
+          const ara = prevConj() ? '' : 'あら'; // 学生には｜あらず
+          if (ara) deWaToNiWa();
+          push(conj(t.surface, { cls: 'ず', stemH: ara, stemM: ara }, { need: 'mizen', isAux: true, modernForm: mf }), false);
           continue;
         }
         if (b === 'た' || t.cType === '特殊・タ') {
@@ -385,6 +418,17 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
           }
           continue;
         }
+        if (b === 'です' && prevConj() && !/^でしょ$/.test(t.surface)) {
+          // 暑いです・行きませんでした: 丁寧の です は ます と同じに落とす（侍り なら 連用形＋侍り）
+          if (opts.polite === 'haberi') {
+            push(conj(t.surface, { cls: 'ラ変', stemH: '侍', stemM: '侍' }, { need: 'renyo', modernForm: mf }), false);
+          } else {
+            const c = prevConj();
+            if (mf) c.modernForm = mf;
+            push({ kind: 'drop', src: t.surface, head: false }, false);
+          }
+          continue;
+        }
         if (b === 'だ' || b === 'です') {
           // だろう・でしょう: 活用語の後なら落として む に任せる
           if (/^(だろ|でしょ)$/.test(t.surface) && next?.base === 'う' && prevConj()) {
@@ -392,7 +436,8 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
             continue;
           }
           if (t.surface === 'で' && next?.base !== 'ある') {
-            push(fixed(t.surface, 'にて', 'にて', { need: 'rentai' }), false);
+            const ni = next?.pos === '助詞' && (next.surface === 'は' || next.surface === 'も') ? 'に' : 'にて';
+            push(fixed(t.surface, ni, ni, { need: 'rentai' }), false);
             continue;
           }
           let src = t.surface;
@@ -412,9 +457,9 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
       }
 
       // ようだ → ごとし
-      if (t.pos === '名詞' && t.pos2 === '助動詞語幹' && t.surface === 'よう' && next?.base === 'だ') {
+      if (t.pos === '名詞' && t.pos2 === '助動詞語幹' && t.surface === 'よう' && (next?.base === 'だ' || (next?.surface === 'に' && next.pos1 === '副詞化'))) {
         const ga = prevConj() ? 'が' : '';
-        push(conj(t.surface + next.surface, { cls: 'ク', stemH: ga + 'ごと', stemM: ga + 'ごと' }, { need: 'rentai', isAux: true, modernForm: formOf(next.cForm) }), false);
+        push(conj(t.surface + next.surface, { cls: 'ク', stemH: ga + 'ごと', stemM: ga + 'ごと' }, { need: 'rentai', isAux: true, modernForm: next.pos === '助詞' ? 'renyo' : formOf(next.cForm) }), false);
         i++;
         continue;
       }
@@ -435,6 +480,10 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
             push(fixed(t.surface, 'て', 'て', { need: 'renyo', particle: true, te: true }), false);
             continue;
           }
+        }
+        if (t.surface === 'と' && t.pos1 === '接続助詞') {
+          push(fixed(t.surface, 'ば', 'ば', { need: 'izen', particle: true }), false);
+          continue;
         }
         if (t.surface === 'で' && t.pos1 === '格助詞') {
           push(fixed(t.surface, 'にて', 'にて', { particle: true }), false);
@@ -484,7 +533,11 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
     units.forEach((u, k) => {
       if (u.pending !== 'ta') return;
       const n = nextOf(k);
-      if (!n || n.kind === 'end') u.word = { cls: opts.style === 'diary' ? 'き' : 'けり', stemH: '', stemM: '' };
+      const p = units.slice(0, k).reverse().find((x) => x.kind !== 'drop');
+      // 文末（閉じかぎの前を含む）は けり／き。文中でも、完了の たり が付けない語（形容詞・ず・なり・たり）の後は けり／き
+      const final = !n || n.kind === 'end' || (n.kind === 'fixed' && /^[」』）)]/.test(n.src));
+      const afterVerb = p?.kind === 'conj' && VERB_CLASSES.has(p.word.cls) && !(p.word.cls === 'ラ変' && p.word.stemH === 'た');
+      if (final || !afterVerb) u.word = { cls: opts.style === 'diary' ? 'き' : 'けり', stemH: '', stemM: '' };
     });
     return units.map((u, k) => {
       if (u.kind === 'drop') return '';
@@ -530,7 +583,7 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
       const segments = [];
       units.forEach((u, k) => {
         let out = outs[k];
-        if (large && HIRAGANA.test(out)) out = smallToLarge(out);
+        if (large && !u.foreign && HIRAGANA.test(out)) out = smallToLarge(out);
         let flag = u.flag;
         let note = u.note;
         if (!flag && u.kanaUnverified && historical) {

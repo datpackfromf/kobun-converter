@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>古文変換</title>
+  <meta name="description" content="現代語の文を、古文の言葉と文法に直して歴史的仮名遣いで出します。変換はブラウザの中だけで行います。">
+  <meta name="theme-color" content="#EEF1F0" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1B1E22" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+</head>
+<body>
+  <main>
+    <header>
+      <h1>古文変換</h1>
+      <p class="lead">いまの言葉で書くと、古文に直します。</p>
+    </header>
+
+    <label class="field-label" for="input">現代語</label>
+    <textarea id="input" rows="3" placeholder="例: とても美しい花だ" autocomplete="off"></textarea>
+
+    <section class="result" aria-labelledby="result-label">
+      <h2 id="result-label" class="field-label">古文</h2>
+      <div class="scroll">
+        <p id="status" class="status">辞書を読み込んでいます…</p>
+        <p id="output" class="output" hidden></p>
+      </div>
+      <div id="note" class="note" role="status" hidden>
+        <p id="note-text"></p>
+        <button type="button" id="note-close" class="text-button">閉じる</button>
+      </div>
+      <p class="legend"><span class="sample-flag">点線</span>は確かめきれなかった所です。触ると元の語と根拠が出ます。</p>
+    </section>
+
+    <div class="actions">
+      <span id="count" class="count" aria-live="polite">0 / 280</span>
+      <button type="button" id="copy" disabled>コピー</button>
+      <a id="post" class="button primary" target="_blank" rel="noopener" aria-disabled="true">Xで投稿</a>
+      <span id="copy-live" class="visually-hidden" aria-live="polite"></span>
+    </div>
+
+    <details class="options">
+      <summary>変換の設定</summary>
+      <fieldset>
+        <legend>語り口（文末の過去）</legend>
+        <label><input type="radio" name="style" value="story" checked> 物語風（けり）</label>
+        <label><input type="radio" name="style" value="diary"> 日記風（き）</label>
+      </fieldset>
+      <fieldset>
+        <legend>です・ます</legend>
+        <label><input type="radio" name="polite" value="drop" checked> 落とす</label>
+        <label><input type="radio" name="polite" value="haberi"> 侍り にする</label>
+      </fieldset>
+      <fieldset>
+        <legend>表記</legend>
+        <label><input type="checkbox" id="historical" checked> 歴史的仮名遣いにする</label>
+        <label><input type="checkbox" id="small" checked> 小さい「っ」「ゃ」などを大きく書く</label>
+      </fieldset>
+    </details>
+
+    <footer>
+      <p>入力した文は端末の外に送りません。古文の語の対応には要確認のものがあります。</p>
+      <p><a href="./THIRD_PARTY_LICENSES.txt">ライセンス</a>（解析: lindera / IPADIC、旧かなの辞書: CC BY-SA 4.0）・<a href="https://github.com/datpackfromf/kobun-converter">ソースコード</a></p>
+    </footer>
+  </main>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

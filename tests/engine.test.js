@@ -140,3 +140,45 @@ test('解析の誤り（きゃ＝く の仮定縮約）は書き換えず点線�
   assert.equal(r.output, 'きやべつを買ひけり');
   assert.equal(r.segments[0].flag, 'unknown');
 });
+
+test('レビュー#2: 用言以外（たり・形容詞・ず）の後の文中の た は けり（日記風は き）', async () => {
+  assert.equal(await out('雨が降っていたので帰った'), '雨が降りたりければ帰りけり');
+  assert.equal(await out('美しかった花'), '美しかりける花');
+  assert.equal(await out('美しかった花', { style: 'diary' }), '美しかりし花');
+  assert.equal(await out('行かなかったので'), '行かざりければ');
+  assert.equal(await out('本を読んだ人'), '本を読みたる人');
+});
+
+test('レビュー#3: 活用語の後の です は ます と同じ扱い', async () => {
+  assert.equal(await out('今日は暑いですね'), '今日は暑し');
+  assert.equal(await out('とても楽しかったです'), 'いと楽しかりけり');
+  assert.equal(await out('行きませんでした'), '行かざりけり');
+  assert.equal(await out('暑いです', { polite: 'haberi' }), '暑く侍り');
+});
+
+test('レビュー#4: 助詞の後の ない は あらず、では は には', async () => {
+  assert.equal(await out('学生ではない。'), '学生にはあらず。');
+  assert.equal(await out('静かではない'), '静かにはあらず');
+});
+
+test('レビュー#5: 片仮名語・未知語に続く活用語は書き換えず点線', async () => {
+  const r = await k('マジでヤバい');
+  assert.ok(r.output.endsWith('ヤバい'));
+  assert.equal(await out('ググった'), 'ググった');
+});
+
+test('レビュー#7: ように → ごとく', async () => {
+  assert.equal(await out('雪のように白い'), '雪のごとく白し');
+});
+
+test('レビュー#8: 接続助詞 と → 已然形＋ば', async () => {
+  assert.equal(await out('朝起きると雨だった'), '朝起くれば雨なりけり');
+});
+
+test('レビュー#10: 閉じかぎの前の た は文末として けり', async () => {
+  assert.equal(await out('「花が咲いた」と言った'), '「花が咲きけり」と言ひけり');
+});
+
+test('レビュー#13: じ の上二段はダ行（閉づ）', async () => {
+  assert.equal(await out('戸を閉じる'), '戸を閉づ');
+});

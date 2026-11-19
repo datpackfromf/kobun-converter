@@ -606,5 +606,75 @@
   "input": "",
   "expected": "",
   "src": "edge"
+ },
+ {
+  "input": "過去を顧みる",
+  "expected": "過去を顧みる",
+  "src": "vocab"
+ },
+ {
+  "input": "新しい方法を試みる",
+  "expected": "あらたなる方法を試みる",
+  "src": "vocab"
+ },
+ {
+  "input": "筆を用いる",
+  "expected": "筆を用ゐる",
+  "src": "vocab"
+ },
+ {
+  "input": "外に出る",
+  "expected": "外に出づ",
+  "src": "vocab"
+ },
+ {
+  "input": "雪のように白い",
+  "expected": "雪のごとく白し",
+  "src": "rule"
+ },
+ {
+  "input": "雨が降っていたので帰った",
+  "expected": "雨が降りたりければ帰りけり",
+  "src": "rule"
+ },
+ {
+  "input": "美しかった花",
+  "expected": "美しかりける花",
+  "src": "rule"
+ },
+ {
+  "input": "今日は暑いですね",
+  "expected": "今日は暑し",
+  "src": "rule"
+ },
+ {
+  "input": "行きませんでした",
+  "expected": "行かざりけり",
+  "src": "rule"
+ },
+ {
+  "input": "学生ではない。",
+  "expected": "学生にはあらず。",
+  "src": "rule"
+ },
+ {
+  "input": "朝起きると雨だった",
+  "expected": "あした起くれば雨なりけり",
+  "src": "rule"
+ },
+ {
+  "input": "「花が咲いた」と言った",
+  "expected": "「花が咲きけり」と言ひけり",
+  "src": "rule"
+ },
+ {
+  "input": "ググった",
+  "expected": "ググった",
+  "src": "edge"
+ },
+ {
+  "input": "川で泳いだ",
+  "expected": "川にて泳ぎけり",
+  "src": "rule"
  }
 ]
