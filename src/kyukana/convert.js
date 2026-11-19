@@ -330,6 +330,27 @@ function push(segments, text, status, source) {
 export function createConverter({ analyzer, dict }) {
   return {
     /**
+     * 頑健な分割（未知語の直し・辞書の再分割）をしたトークン列。（古文変換で追加）
+     * @param {string} text @returns {WorkToken[]}
+     */
+    tokenize(text) {
+      return text ? resegment(analyzer, dict, text, tokenizeRobust(analyzer, text)) : [];
+    },
+    /**
+     * トークンごとの歴史的仮名（1トークンに1つ。小書き→大書きはしない）。（古文変換で追加）
+     * @param {WorkToken[]} tokens @returns {{ text: string, status: Status }[]}
+     */
+    convertEach(tokens) {
+      return tokens.map((t, i) => {
+        if (COMBINING_MARK.test(t.surface) || COMBINING_MARK_START.test(tokens[i + 1]?.surface ?? '')) {
+          return { text: t.surface, status: /** @type {Status} */ ('unverified') };
+        }
+        if (followsForeignWord(tokens[i - 1], t)) return { text: t.surface, status: /** @type {Status} */ ('unverified') };
+        const seg = convertToken(dict, t, tokens[i + 1]);
+        return { text: seg.text, status: seg.status };
+      });
+    },
+    /**
      * @param {string} text
      * @param {{ smallToLarge?: boolean }} [opts]
      * @returns {{ output: string, segments: Segment[] }}
