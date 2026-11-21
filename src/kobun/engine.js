@@ -67,6 +67,15 @@ const PARTICLES = {
   だけ: { h: 'のみ', need: 'rentai' }, なあ: { h: 'かな', need: 'rentai' }, なぁ: { h: 'かな', need: 'rentai' },
   と: { h: 'と', need: 'shushi', pos2: '引用' },
 };
+/**
+ * 文末のネットスラング「草」（笑える・おもしろい）。後ろの w と、文末（句読点・空白・閉じかっこ・絵文字・入力の終わり）が続くものだけ。
+ * 漢字・片仮名の直後（雑草・牧草）は語の一部なので除く。
+ */
+const SLANG = /(?<![㐀-鿿豈-﫿々ァ-ヺ])(大草原|草不可避|草生えた|草生える|草生え|草|くさ|クサ|ｸｻ)[wWｗＷ]*(?=[\s。．.！!？?、♪…）)」』]|$|\p{Extended_Pictographic})/gu;
+/** ひらがなの くさ をスラングとみなす直前の字（終止形の語尾・助詞）。めんどくさ・じじくさ は くさい の語幹なので除く */
+const SLANG_AFTER = /[たいうくすつぬふむゆるぐぶずだわはもなよねかぞぜさてでし]$/;
+const SLANG_NOTE = '「草」をネットスラング（笑える・おもしろい）と読んで「をかし」にした。植物の草なら元の語のまま読んでください';
+
 /** 完了の たり が付く動詞型の活用 */
 const VERB_CLASSES = new Set(['四段', '上一段', '上二段', '下二段', '下一段', 'カ変', 'サ変', 'ナ変', 'ラ変']);
 /** 落とす終助詞 */
@@ -218,7 +227,7 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
    * @param {Token[]} tokens @param {{ text: string, status: string }[]} hist @param {Options} opts
    * @returns {Unit[]}
    */
-  function build(tokens, hist, opts) {
+  function build(tokens, hist, opts, beforeSlang = false) {
     /** @type {Unit[]} */
     const units = [];
     const starts = [];
@@ -575,7 +584,8 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
       if (!u.te || u.kind === 'drop') continue;
       const n = units.slice(k + 1).find((x) => x.kind !== 'drop');
       const p = units.slice(0, k).reverse().find((x) => x.kind !== 'drop');
-      if ((!n || n.kind === 'end') && p?.kind === 'conj') {
+      // ネットスラングの直前（面白すぎてくさ）の て は文末ではないので命令にしない
+      if ((!n || n.kind === 'end') && p?.kind === 'conj' && !(beforeSlang && !n)) {
         u.kind = 'drop';
         p.force = 'meirei';
       }
@@ -629,15 +639,46 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
     });
   }
 
-  return {
-    /**
-     * @param {string} text @param {Options} [opts]
-     * @returns {{ output: string, segments: Segment[] }}
-     */
-    convert(text, opts = {}) {
+  /**
+   * 文末のネットスラング「草・くさ」（笑える・おもしろい）を文字列で見つけて区切る。
+   * 解析器は「くさ」を くさい の語幹・たい＋さ・く＋さ などと毎回違うふうに分けるため、語の分け方には頼らない。
+   * 本物の草（庭の草・青い草・この草・雑草）は、直前の語で見分けて区切らない。
+   * @param {string} text
+   * @returns {{ text: string, slang?: boolean, ambiguous?: boolean, beforeSlang?: boolean }[]}
+   */
+  function splitSlang(text) {
+    const parts = [];
+    let cut = 0;
+    for (const m of text.matchAll(SLANG)) {
+      const start = m.index;
+      const prefix = text.slice(cut, start);
+      const last = kk.tokenize(prefix).filter((t) => t.surface.trim()).pop();
+      const kanji = m[1].includes('草') && !/^(大草原|草不可避|草生え)/.test(m[1]);
+      // 名詞を修飾する語（の・形容詞・連体詞・接頭詞）の後は本物の草
+      if (last && ((last.pos === '助詞' && last.pos1 === '連体化') || last.pos === '形容詞' || last.pos === '連体詞' || last.pos === '接頭詞')) continue;
+      // ひらがなの くさ は、終止形の語尾・助詞の後だけ（めんどくさ・じじくさ は くさい の語幹）
+      const kana = /^(くさ|クサ|ｸｻ)$/.test(m[1]);
+      if (kana && last && /[ぁ-ゟ]$/.test(last.surface) && !SLANG_AFTER.test(last.surface)) continue;
+      if (prefix) parts.push({ text: prefix, beforeSlang: true });
+      // 漢字の 草 は、文の後（何もない・記号・終助詞の後）以外は植物の草とも読めるので要確認にする
+      const clear = !last || last.pos === '記号' || last.pos1 === '終助詞';
+      parts.push({ text: m[0], slang: true, ambiguous: kanji && !clear });
+      cut = start + m[0].length;
+    }
+    if (cut < text.length) parts.push({ text: text.slice(cut) });
+    return parts;
+  }
+
+  /**
+   * 1つのまとまりを変換する。
+   * @param {string} text @param {Options} opts @param {boolean} [beforeSlang] 直後にネットスラングが続く
+   * @returns {{ segments: Segment[], lastKind: string|null }}
+   */
+  function convertChunk(text, opts, beforeSlang = false) {
+    {
       const tokens = kk.tokenize(text);
       const hist = kk.convertEach(tokens);
-      const units = build(tokens, hist, opts);
+      const units = build(tokens, hist, opts, beforeSlang);
       const outs = render(units, opts);
       const large = opts.smallToLarge ?? true;
       const historical = opts.historical ?? true;
@@ -662,8 +703,36 @@ export function createKobun({ analyzer, kyukanaDict, vocab }) {
         if (flag === 'unknown' || (flag && !last.flag)) last.flag = flag;
         if (flag) last.note = last.note ? `${last.note}\n${note}` : note;
       });
-      for (const s of segments) if (s.flag) s.note = `元の語「${s.source}」\n${s.note}`;
-      return { output: segments.map((s) => s.text).join(''), segments };
+      const lastUnit = units.filter((x) => x.kind !== 'drop' && x.src.trim()).pop();
+      const lastKind = lastUnit ? (lastUnit.te ? 'te' : lastUnit.kind) : null;
+      return { segments, lastKind };
+    }
+  }
+
+  return {
+    /**
+     * @param {string} text @param {Options} [opts]
+     * @returns {{ output: string, segments: Segment[] }}
+     */
+    convert(text, opts = {}) {
+      /** @type {Segment[]} */
+      const segments = [];
+      let lastKind = null;
+      for (const part of splitSlang(text)) {
+        if (part.slang) {
+          // 用言・て で終わる文の後は読点で区切る（負けけり、をかし）
+          const joiner = lastKind === 'conj' || lastKind === 'te' ? '、' : '';
+          const word = (opts.historical ?? true) ? 'をかし' : 'おかし';
+          segments.push({ text: joiner + word, source: part.text, ...(part.ambiguous ? { flag: 'review', note: SLANG_NOTE } : {}) });
+          lastKind = 'slang';
+          continue;
+        }
+        const r = convertChunk(part.text, opts, part.beforeSlang);
+        segments.push(...r.segments);
+        lastKind = r.lastKind;
+      }
+      for (const seg of segments) if (seg.flag) seg.note = `元の語「${seg.source}」\n${seg.note}`;
+      return { output: segments.map((seg) => seg.text).join(''), segments };
     },
   };
 }

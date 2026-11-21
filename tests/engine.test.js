@@ -229,3 +229,35 @@ test('規則と同じ語の項目は、歴史的仮名の違いだけなら漢�
 test('ていく → 連用形＋ゆく', async () => {
   assert.equal(await out('桜が散っていく'), '桜が散りゆく');
 });
+
+test('ネットスラング: 文末の くさ・草 は をかし', async () => {
+  assert.equal(await out('これはくさ'), 'これはをかし');
+  assert.equal(await out('負けたくさ'), '負けけり、をかし');
+  assert.equal(await out('面白すぎてくさ'), 'をかしすぎて、をかし');
+  assert.equal(await out('草'), 'をかし');
+  assert.equal(await out('草生える'), 'をかし');
+  assert.equal(await out('大草原ｗｗｗ'), 'をかし');
+  assert.equal(await out('負けたくさ。次は勝つ'), '負けけり、をかし。次は勝つ');
+  assert.equal(await out('これはくさ', { historical: false }), 'これはおかし');
+});
+
+test('ネットスラング: どちらとも読める 草 は をかし にして要確認の点線', async () => {
+  const r = await k('それは草');
+  assert.equal(r.output, 'それはをかし');
+  assert.ok(r.segments.some((s) => s.flag === 'review' && s.source === '草' && /スラング/.test(s.note)));
+  assert.equal(r.segments.map((s) => s.source).join(''), 'それは草');
+});
+
+test('ネットスラング: 本物の草・くさい・たくさん・めんどくさ は変えない', async () => {
+  assert.equal(await out('庭の草を抜いた'), '庭の草を抜きけり');
+  assert.equal(await out('庭の草'), '庭の草');
+  assert.equal(await out('青い草'), '青き草');
+  assert.equal(await out('雑草'), '雑草');
+  assert.equal(await out('くさい'), 'くさし');
+  assert.ok(!(await out('たくさん食べた')).includes('をかし'));
+  assert.ok(!(await out('めんどくさ')).includes('をかし'));
+});
+
+test('ネットスラング: 草生えた は前が副詞でも をかし', async () => {
+  assert.equal(await out('ちょっと草生えた'), 'ちよつとをかし');
+});

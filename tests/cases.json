@@ -746,5 +746,60 @@
    "polite": "haberi"
   },
   "src": "option"
+ },
+ {
+  "input": "これはくさ",
+  "expected": "これはをかし",
+  "src": "slang"
+ },
+ {
+  "input": "負けたくさ",
+  "expected": "負けけり、をかし",
+  "src": "slang"
+ },
+ {
+  "input": "面白すぎてくさ",
+  "expected": "をかしすぎて、をかし",
+  "src": "slang"
+ },
+ {
+  "input": "草",
+  "expected": "をかし",
+  "src": "slang"
+ },
+ {
+  "input": "草生える",
+  "expected": "をかし",
+  "src": "slang"
+ },
+ {
+  "input": "大草原ｗｗｗ",
+  "expected": "をかし",
+  "src": "slang"
+ },
+ {
+  "input": "まじで草",
+  "expected": "まことにをかし",
+  "src": "slang"
+ },
+ {
+  "input": "それな草",
+  "expected": "げにをかし",
+  "src": "slang"
+ },
+ {
+  "input": "それは草",
+  "expected": "それはをかし",
+  "src": "slang"
+ },
+ {
+  "input": "庭の草を抜いた",
+  "expected": "庭の草を抜きけり",
+  "src": "slang"
+ },
+ {
+  "input": "青い草",
+  "expected": "青き草",
+  "src": "slang"
  }
 ]

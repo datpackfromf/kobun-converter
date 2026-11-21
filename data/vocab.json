@@ -3528,6 +3528,34 @@
   "category": "adverb"
  },
  {
+  "modern": "まじで",
+  "reading": "まじで",
+  "match": "surface",
+  "kobun": "まことに",
+  "kobunModern": "まことに",
+  "kobunReading": "まことに",
+  "pos": "adverb",
+  "class": null,
+  "basis": "現代の俗語「まじで」は「本当に・本気で」の意。古語「まことに」は「本当に・実に」の意（竹取物語「まことに蓬莱の木かとこそ思ひつれ」）。",
+  "status": "confirmed",
+  "note": "ネットスラング・話し言葉",
+  "category": "adverb"
+ },
+ {
+  "modern": "マジで",
+  "reading": "まじで",
+  "match": "surface",
+  "kobun": "まことに",
+  "kobunModern": "まことに",
+  "kobunReading": "まことに",
+  "pos": "adverb",
+  "class": null,
+  "basis": "現代の俗語「まじで」は「本当に・本気で」の意。古語「まことに」は「本当に・実に」の意（竹取物語「まことに蓬莱の木かとこそ思ひつれ」）。",
+  "status": "confirmed",
+  "note": "ネットスラング・話し言葉",
+  "category": "adverb"
+ },
+ {
   "modern": "だから",
   "reading": "だから",
   "match": "surface",
@@ -4407,6 +4435,34 @@
   "basis": "『こんにちは』は「今日は（〜）」の後半が省略された近世以降の挨拶。古典に対応する昼の挨拶語はない。",
   "status": "review",
   "note": "古典の挨拶語がなく、読み「けふは」も挨拶としては不自然。省略も検討。",
+  "category": "conjunction"
+ },
+ {
+  "modern": "それな",
+  "reading": "それな",
+  "match": "surface",
+  "kobun": "げに",
+  "kobunModern": "げに",
+  "kobunReading": "げに",
+  "pos": "interjection",
+  "class": null,
+  "basis": "現代の俗語「それな」は相手の言葉に強く同意する言い方（ほんとにそうだ）。古語「げに」は「本当に・なるほど」と相手の言葉や評判を認める副詞（源氏物語などに多い）。",
+  "status": "review",
+  "note": "ネットスラング。古語の げに は副詞で、単独の相づちとしての用法は限られる",
+  "category": "conjunction"
+ },
+ {
+  "modern": "ソレナ",
+  "reading": "それな",
+  "match": "surface",
+  "kobun": "げに",
+  "kobunModern": "げに",
+  "kobunReading": "げに",
+  "pos": "interjection",
+  "class": null,
+  "basis": "現代の俗語「それな」は相手の言葉に強く同意する言い方（ほんとにそうだ）。古語「げに」は「本当に・なるほど」と相手の言葉や評判を認める副詞（源氏物語などに多い）。",
+  "status": "review",
+  "note": "ネットスラング。古語の げに は副詞で、単独の相づちとしての用法は限られる",
   "category": "conjunction"
  },
  {
